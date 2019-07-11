@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>To Do | App</title>
+    <div id="todo-app">
+      <div>
+        <input type="text" v-model="new_todo" />
+        <button @click="addTodo()">Add</button>
+      </div>
+
+      <div v-for="(todo, index) in todos" :key="index">
+        <input type="checkbox" v-on:click="setStatus(todo.id)" />
+        {{ todo }}
+        <button @click="editTodo(todo.text, todo.id)">edit</button>
+        <button @click="removeTodo(index)">remove</button>
+      </div>
+      <hr />
+      <div>
+        {{ getDone() }}
+      </div>
+
+      <hr />
+
+      <div>
+        <input type="text" v-model="edit_todo" />
+        <button @click="save()">save</button>
+        <button @click="cancel()">cancel</button>
+      </div>
+      <button @click="setLocalStorage()">Save this data</button>
+    </div>
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+      var todo_app = new Vue({
+        el: "#todo-app",
+        created() {
+          this.checkLocalTodos();
+        },
+        data: {
+          edit_todo: "",
+          edit_id: "",
+          new_todo: "",
+          todos: [
+            { id: "1", text: "lorem", status: "" },
+            { id: "2", text: "lorem ipsum", status: "" },
+            { id: "3", text: "lorem dolor", status: "" }
+          ]
+        },
+        methods: {
+          setStatus(id) {
+            const tmpTodos = this.todos.find(todo => todo.id == id);
+            if (tmpTodos.status == "done") {
+              tmpTodos.status = "";
+            } else {
+              tmpTodos.status = "done";
+            }
+          },
+          removeTodo(index) {
+            this.todos.splice(index, 1);
+          },
+          addTodo() {
+            const popped = this.todos.slice(-1).pop()
+              ? this.todos.slice(-1).pop().id
+              : 0;
+            const dataTodo = {
+              id: popped + 1,
+              text: this.new_todo,
+              status: ""
+            };
+            this.todos.push(dataTodo);
+          },
+          getDone() {
+            const tmpTodos = this.todos.filter(todo => todo.status == "done");
+            return tmpTodos.length;
+          },
+          editTodo(text, id) {
+            this.edit_todo = text;
+            this.edit_id = id;
+          },
+          save() {
+            const tmpTodos = this.todos.find(todo => todo.id == this.edit_id);
+            tmpTodos.text = this.edit_todo;
+          },
+          cancel() {
+            this.edit_todo = "";
+            this.edit_id = "";
+          },
+          setLocalStorage() {
+            localStorage.setItem("todos", JSON.stringify(this.todos));
+          },
+          checkLocalTodos() {
+            const localTodos = JSON.parse(localStorage.getItem("todos"));
+            if (localTodos != null) {
+              this.todos = localTodos;
+            }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
